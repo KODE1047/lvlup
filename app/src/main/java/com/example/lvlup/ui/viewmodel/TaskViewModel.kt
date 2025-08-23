@@ -29,21 +29,15 @@ class TaskViewModel @Inject constructor(
     val hierarchicalTasks: StateFlow<List<HierarchicalTask>> = repository.getTasks()
         .map { tasks ->
             val taskMap = tasks.associateBy { it.id }
-            val rootTasks = mutableListOf<HierarchicalTask>()
             val subTaskMap = tasks.filter { it.parentId != null }
-                                .groupBy { it.parentId!! }
+                .groupBy { it.parentId!! }
 
             fun buildHierarchy(task: Task): HierarchicalTask {
                 val subTasks = subTaskMap[task.id]?.map { buildHierarchy(it) } ?: emptyList()
                 return HierarchicalTask(task, subTasks)
             }
 
-            tasks.forEach { task ->
-                if (task.parentId == null) {
-                    rootTasks.add(buildHierarchy(task))
-                }
-            }
-            rootTasks
+            tasks.filter { it.parentId == null }.map { buildHierarchy(it) }
         }
         .stateIn(
             scope = viewModelScope,

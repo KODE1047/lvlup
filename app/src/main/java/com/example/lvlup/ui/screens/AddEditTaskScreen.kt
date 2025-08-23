@@ -2,19 +2,13 @@
 
 package com.example.lvlup.ui.screens
 
-import androidx.compose.material3.DatePicker // <--- ADD THIS
-import androidx.compose.material3.DatePickerDialog // <--- ADD THIS
-import androidx.compose.material3.rememberDatePickerState // <--- ADD THIS
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -60,7 +54,23 @@ fun AddEditTaskScreen(
         }
     }
 
-    val datePickerState = rememberDatePickerState()
+    val startOfToday = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    // CHANGED: This is the final, correct way to set the date validation.
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = dueDate ?: System.currentTimeMillis(),
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis >= startOfToday
+            }
+        }
+    )
+
     val openDialog = remember { mutableStateOf(false) }
 
     if (openDialog.value) {
@@ -78,6 +88,7 @@ fun AddEditTaskScreen(
                 TextButton(onClick = { openDialog.value = false }) { Text("Cancel") }
             }
         ) {
+            // CHANGED: The incorrect dateValidator parameter is now removed from here.
             DatePicker(state = datePickerState)
         }
     }
@@ -151,7 +162,6 @@ fun AddEditTaskScreen(
                     .height(120.dp)
             )
 
-            // Due Date Selector
             OutlinedTextField(
                 value = dueDate?.let { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(it)) } ?: "Not Set",
                 onValueChange = {},
@@ -171,7 +181,6 @@ fun AddEditTaskScreen(
                 )
             )
 
-            // Priority Selector
             Text("Priority", style = MaterialTheme.typography.titleMedium)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Priority.values().forEach { prio ->
@@ -190,8 +199,7 @@ fun AddEditTaskScreen(
                     }
                 }
             }
-            
-            // Parent Task Selector
+
             Box {
                 OutlinedTextField(
                     value = availableParents.find { it.id == parentId }?.title ?: "No Parent Task",
