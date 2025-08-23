@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">lvl up</string>
+    <string name="app_name">Lvl Up</string>
+    <string name="simple_widget_description">Shows task completion overview</string>
+    <string name="detailed_widget_description">Shows detailed task analytics</string>
 </resources>

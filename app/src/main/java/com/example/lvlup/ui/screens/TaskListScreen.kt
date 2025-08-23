@@ -15,7 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.lvlup.ui.composables.TaskItem
-import com.example.lvlup.ui.viewmodel.HierarchicalTask
+import com.example.lvlup.model.HierarchicalTask
 import com.example.lvlup.ui.viewmodel.TaskViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
