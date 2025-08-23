@@ -1,0 +1,56 @@
+// app/src/main/java/com/example/lvlup/notification/TaskAlarmScheduler.kt
+
+package com.example.lvlup.notification
+
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import com.example.lvlup.model.Task
+import java.time.Instant
+import java.time.ZoneId
+
+class TaskAlarmScheduler(private val context: Context) {
+    private val alarmManager = context.getSystemService(AlarmManager::class.java)
+
+    fun schedule(task: Task) {
+        if (task.dueDate == null) return
+
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            putExtra("EXTRA_TASK_ID", task.id)
+            putExtra("EXTRA_TASK_TITLE", task.title)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Ensure we don't schedule alarms for past dates
+        if (task.dueDate > System.currentTimeMillis()) {
+            try {
+                 alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    task.dueDate,
+                    pendingIntent
+                )
+            } catch (e: SecurityException) {
+                // Handle cases where exact alarm permission is not granted
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun cancel(task: Task) {
+        val intent = Intent(context, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
+    }
+}
