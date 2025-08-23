@@ -2,6 +2,7 @@
 
 package com.example.lvlup.ui.screens
 
+import android.app.TimePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -61,7 +62,6 @@ fun AddEditTaskScreen(
         set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 
-    // CHANGED: This is the final, correct way to set the date validation.
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = dueDate ?: System.currentTimeMillis(),
         selectableDates = object : SelectableDates {
@@ -71,27 +71,46 @@ fun AddEditTaskScreen(
         }
     )
 
-    val openDialog = remember { mutableStateOf(false) }
+    val openDatePicker = remember { mutableStateOf(false) }
+    val openTimePicker = remember { mutableStateOf(false) }
+    val selectedDateTime = remember { Calendar.getInstance() }
 
-    if (openDialog.value) {
+    if (openDatePicker.value) {
         DatePickerDialog(
-            onDismissRequest = { openDialog.value = false },
+            onDismissRequest = { openDatePicker.value = false },
             confirmButton = {
                 TextButton(onClick = {
-                    openDialog.value = false
-                    dueDate = datePickerState.selectedDateMillis
-                }) {
-                    Text("OK")
-                }
+                    openDatePicker.value = false
+                    datePickerState.selectedDateMillis?.let {
+                        selectedDateTime.timeInMillis = it
+                    }
+                    openTimePicker.value = true
+                }) { Text("OK") }
             },
             dismissButton = {
-                TextButton(onClick = { openDialog.value = false }) { Text("Cancel") }
+                TextButton(onClick = { openDatePicker.value = false }) { Text("Cancel") }
             }
         ) {
-            // CHANGED: The incorrect dateValidator parameter is now removed from here.
             DatePicker(state = datePickerState)
         }
     }
+
+    if (openTimePicker.value) {
+        val calendar = Calendar.getInstance()
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                openTimePicker.value = false
+                selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                selectedDateTime.set(Calendar.MINUTE, minute)
+                dueDate = selectedDateTime.timeInMillis
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            false
+        ).show()
+    }
+
 
     Scaffold(
         topBar = {
@@ -116,6 +135,13 @@ fun AddEditTaskScreen(
                             Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
                             return@IconButton
                         }
+
+                        // NEW: Validate that the selected date and time is not in the past.
+                        if (dueDate != null && dueDate!! < System.currentTimeMillis()) {
+                            Toast.makeText(context, "Cannot set a due time in the past", Toast.LENGTH_LONG).show()
+                            return@IconButton
+                        }
+
                         val taskToSave = (currentTask ?: Task(
                             title = "",
                             description = null,
@@ -162,13 +188,14 @@ fun AddEditTaskScreen(
                     .height(120.dp)
             )
 
+            val dateTimeFormatter = SimpleDateFormat("MMM dd, yyyy, hh:mm a", Locale.getDefault())
             OutlinedTextField(
-                value = dueDate?.let { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date(it)) } ?: "Not Set",
+                value = dueDate?.let { dateTimeFormatter.format(Date(it)) } ?: "Not Set",
                 onValueChange = {},
-                label = { Text("Due Date") },
+                label = { Text("Due Date & Time") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { openDialog.value = true },
+                    .clickable { openDatePicker.value = true },
                 enabled = false,
                 leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
                 colors = OutlinedTextFieldDefaults.colors(

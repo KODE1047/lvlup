@@ -7,8 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.example.lvlup.model.Task
-import java.time.Instant
-import java.time.ZoneId
 
 class TaskAlarmScheduler(private val context: Context) {
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
@@ -16,9 +14,11 @@ class TaskAlarmScheduler(private val context: Context) {
     fun schedule(task: Task) {
         if (task.dueDate == null) return
 
+        // CHANGED: Pass the due date into the intent
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", task.id)
             putExtra("EXTRA_TASK_TITLE", task.title)
+            putExtra("EXTRA_DUE_DATE", task.dueDate) // <-- ADD THIS LINE
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -28,16 +28,14 @@ class TaskAlarmScheduler(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Ensure we don't schedule alarms for past dates
         if (task.dueDate > System.currentTimeMillis()) {
             try {
-                 alarmManager.setExactAndAllowWhileIdle(
+                alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     task.dueDate,
                     pendingIntent
                 )
             } catch (e: SecurityException) {
-                // Handle cases where exact alarm permission is not granted
                 e.printStackTrace()
             }
         }
