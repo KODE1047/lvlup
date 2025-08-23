@@ -3,20 +3,10 @@
 package com.example.lvlup.model
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(
-    tableName = "tasks",
-    foreignKeys = [
-        ForeignKey(
-            entity = Task::class,
-            parentColumns = ["id"],
-            childColumns = ["parentId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
+// CHANGED: Removed the entire foreignKeys = [...] block from this annotation.
+@Entity(tableName = "tasks")
 data class Task(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
@@ -25,6 +15,5 @@ data class Task(
     val dueDate: Long?,
     val priority: Priority,
     val isCompleted: Boolean = false,
-    val parentId: Int? = null,
     val isRecurring: Boolean = false
 )

@@ -5,7 +5,7 @@ package com.example.lvlup.ui.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
@@ -26,7 +25,7 @@ fun AnalyticsScreen(
     viewModel: TaskViewModel,
     onNavigateBack: () -> Unit
 ) {
-    val tasks by viewModel.allTasks.collectAsState()
+    val tasks by viewModel.tasks.collectAsState()
 
     val totalTasks = tasks.size
     val completedTasks = tasks.count { it.isCompleted }
@@ -39,7 +38,7 @@ fun AnalyticsScreen(
                 title = { Text("Analytics") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -88,7 +87,6 @@ fun CompletionPieChart(completionRate: Float) {
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 50f
-            // Background arc for pending tasks
             drawArc(
                 color = pendingColor,
                 startAngle = 0f,
@@ -96,7 +94,6 @@ fun CompletionPieChart(completionRate: Float) {
                 useCenter = false,
                 style = Stroke(width = strokeWidth)
             )
-            // Foreground arc for completed tasks
             drawArc(
                 color = completedColor,
                 startAngle = -90f,

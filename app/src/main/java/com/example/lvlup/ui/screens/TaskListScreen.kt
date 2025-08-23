@@ -14,8 +14,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.lvlup.model.Task
 import com.example.lvlup.ui.composables.TaskItem
-import com.example.lvlup.model.HierarchicalTask
 import com.example.lvlup.ui.viewmodel.TaskViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -29,16 +29,16 @@ fun TaskListScreen(
     onEditTask: (Int) -> Unit,
     onNavigateToAnalytics: () -> Unit
 ) {
-    val allHierarchicalTasks by viewModel.hierarchicalTasks.collectAsState()
+    // CHANGED: We now collect the simple 'tasks' StateFlow.
+    val allTasks by viewModel.tasks.collectAsState()
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Ongoing", "Done")
 
-    // NEW: Filter tasks based on completion status
-    val ongoingTasks = allHierarchicalTasks.mapNotNull { filterCompleted(it, false) }
-    val doneTasks = allHierarchicalTasks.mapNotNull { filterCompleted(it, true) }
+    // CHANGED: Filtering logic is now simpler.
+    val ongoingTasks = allTasks.filter { !it.isCompleted }
+    val doneTasks = allTasks.filter { it.isCompleted }
 
 
-    // Request notification permission on Android 13+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         val notificationPermissionState = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
         LaunchedEffect(Unit) {
@@ -51,7 +51,7 @@ fun TaskListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lvl Up") },
+                title = { Text("Lvl Up Tasks") },
                 actions = {
                     IconButton(onClick = onNavigateToAnalytics) {
                         Icon(Icons.Default.QueryStats, contentDescription = "Analytics")
@@ -66,7 +66,6 @@ fun TaskListScreen(
         }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            // NEW: TabRow for Ongoing/Done tasks
             TabRow(selectedTabIndex = selectedTabIndex) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -76,7 +75,6 @@ fun TaskListScreen(
                     )
                 }
             }
-            // NEW: Show content based on selected tab
             when (selectedTabIndex) {
                 0 -> TaskListContent(tasks = ongoingTasks, viewModel = viewModel, onEditTask = onEditTask)
                 1 -> TaskListContent(tasks = doneTasks, viewModel = viewModel, onEditTask = onEditTask)
@@ -85,10 +83,9 @@ fun TaskListScreen(
     }
 }
 
-// NEW: Extracted LazyColumn content into a reusable composable
 @Composable
 fun TaskListContent(
-    tasks: List<HierarchicalTask>,
+    tasks: List<Task>, // CHANGED: The parameter is now a simple List<Task>.
     viewModel: TaskViewModel,
     onEditTask: (Int) -> Unit
 ) {
@@ -97,50 +94,12 @@ fun TaskListContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(tasks, key = { it.task.id }) { hierarchicalTask ->
-            TaskItemRecursive(
-                hierarchicalTask = hierarchicalTask,
-                viewModel = viewModel,
-                onEditTask = onEditTask
-            )
-        }
-    }
-}
-
-// NEW: Helper function to filter hierarchical tasks
-fun filterCompleted(task: HierarchicalTask, isCompleted: Boolean): HierarchicalTask? {
-    val filteredSubTasks = task.subTasks.mapNotNull { filterCompleted(it, isCompleted) }
-    return if (task.task.isCompleted == isCompleted || filteredSubTasks.isNotEmpty()) {
-        task.copy(subTasks = filteredSubTasks)
-    } else {
-        null
-    }
-}
-
-
-@Composable
-fun TaskItemRecursive(
-    hierarchicalTask: HierarchicalTask,
-    viewModel: TaskViewModel,
-    onEditTask: (Int) -> Unit,
-    level: Int = 0
-) {
-    // Only display the parent if it matches the filter criteria,
-    // or if it has subtasks that match. The filtering is now done before this composable is called.
-    Column {
-        TaskItem(
-            task = hierarchicalTask.task,
-            // CHANGED: The onCheckedChange now only triggers the icon, not the DB update
-            onCompleteClick = { viewModel.toggleTaskCompleted(hierarchicalTask.task) },
-            onClick = { onEditTask(hierarchicalTask.task.id) },
-            modifier = Modifier.padding(start = (16 * level).dp)
-        )
-        hierarchicalTask.subTasks.forEach { subTask ->
-            TaskItemRecursive(
-                hierarchicalTask = subTask,
-                viewModel = viewModel,
-                onEditTask = onEditTask,
-                level = level + 1
+        // CHANGED: We iterate over the simple list and call TaskItem directly.
+        items(tasks, key = { it.id }) { task ->
+            TaskItem(
+                task = task,
+                onCompleteClick = { viewModel.toggleTaskCompleted(task) },
+                onClick = { onEditTask(task.id) }
             )
         }
     }
