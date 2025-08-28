@@ -162,20 +162,6 @@ These improvements can serve as advanced assignments or capstone project extensi
 
 This project is for educational purposes only and is not intended for production use.
 
-## Note for Educators
-
-This project is designed as an educational tool for teaching Android development. Here are some suggestions for using it in an educational setting:
-
-- **Project-Based Learning**: Use the app as a foundation for a semester-long project
-- **Code Review Exercises**: Analyze specific components (e.g., the Hilt DI implementation or Glance widgets)
-- **Feature Expansion Assignments**: Challenge students to add new features like cloud sync or advanced search
-- **Code Refactoring Practice**: Identify areas for improvement in the codebase
-- **Testing Exercises**: Expand the test coverage for untested components
-- **UI/UX Design Challenges**: Redesign specific screens or improve the user experience
-- **Build Process Analysis**: Study the KSP implementation in the build system
-
-The project intentionally includes a range of Android concepts to provide multiple avenues for learning and expansion.
-
 ## Contributing
 
 As this is a university project, contributions are not expected. However, feel free to fork the repository and use it for your own learning purposes.
