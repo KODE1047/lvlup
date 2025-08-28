@@ -51,7 +51,7 @@ fun TaskListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Lvl Up Tasks") },
+                title = { Text("Lvl Up") },
                 actions = {
                     IconButton(onClick = onNavigateToAnalytics) {
                         Icon(Icons.Default.QueryStats, contentDescription = "Analytics")
