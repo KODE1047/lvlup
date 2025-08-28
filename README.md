@@ -1,6 +1,6 @@
-# LvlUp
+# Lvl Up
 
-LvlUp is an Android application developed as a university project for educational purposes only.
+Lvl Up is an Android application developed as a university project for educational purposes only.
 
 ## Description
 
@@ -23,7 +23,7 @@ This project is an Android app built with modern Android development technologie
 
 - **Kotlin**: Primary programming language
 - **Jetpack Compose**: Modern toolkit for building native UI
-- **Hilt**: Dependency injection library (implementation details in `com.example.lvlup.di` package)
+- **Hilt**: Dependency injection library (implementation details in `com.example.Lvl Up.di` package)
 - **Room**: Database library for local data storage
 - **Navigation Component**: For handling navigation between composables
 - **Material Design 3**: For modern, consistent UI components
@@ -42,7 +42,7 @@ This project is an Android app built with modern Android development technologie
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/KODE1047/lvlup.git
+   git clone https://github.com/KODE1047/Lvl Up.git
    ```
 
 2. Open the project in Android Studio
@@ -63,13 +63,13 @@ This project is an Android app built with modern Android development technologie
 The project follows the standard Android project structure with a single `app` module. Key directories include:
 
 - `app/src/main/java`: Contains the Kotlin source code organized by features
-  - `com.example.lvlup.ui`: Jetpack Compose UI components and screens
-  - `com.example.lvlup.data`: Room database entities and DAOs
-  - `com.example.lvlup.repository`: Data repository layer (single source of truth)
-  - `com.example.lvlup.viewmodel`: ViewModel classes for UI state management
-  - `com.example.lvlup.di`: Hilt dependency injection modules
-  - `com.example.lvlup.receiver`: AlarmReceiver for task notifications
-  - `com.example.lvlup.service`: Background services for alarms
+  - `com.example.Lvl Up.ui`: Jetpack Compose UI components and screens
+  - `com.example.Lvl Up.data`: Room database entities and DAOs
+  - `com.example.Lvl Up.repository`: Data repository layer (single source of truth)
+  - `com.example.Lvl Up.viewmodel`: ViewModel classes for UI state management
+  - `com.example.Lvl Up.di`: Hilt dependency injection modules
+  - `com.example.Lvl Up.receiver`: AlarmReceiver for task notifications
+  - `com.example.Lvl Up.service`: Background services for alarms
 
 - `app/src/main/res`: Contains resources organized by type
   - `drawable`: App icons and vector graphics
